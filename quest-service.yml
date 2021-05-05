@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  quest-service
+  labels:
+    app: quest-service
+spec:
+  selector:
+    matchLabels:
+      app: quest-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app:  quest-service
+    spec:
+      containers:
+        - name: quest-service
+          image: fbiankevin/quest-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort:  101
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: quest-service
+spec:
+  selector:
+    app: quest-service
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 101
+      protocol: TCP

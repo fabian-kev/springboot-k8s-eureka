@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  player-service
+  labels:
+    app: player-service
+spec:
+  selector:
+    matchLabels:
+      app: player-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app:  player-service
+    spec:
+      containers:
+        - name:  player-service
+          image: fbiankevin/player-service-v2:1.0.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort:  100
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: player-service
+spec:
+  selector:
+    app: player-service
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 100
+      protocol: TCP

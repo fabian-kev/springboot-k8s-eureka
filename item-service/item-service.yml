@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  item-service
+  labels:
+    app: item-service
+spec:
+  selector:
+    matchLabels:
+      app: item-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app:  item-service
+    spec:
+      containers:
+        - name:  item-service
+          image: fbiankevin/item-service:latest
+#          imagePullPolicy: Never
+          ports:
+            - containerPort:  102
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: item-service
+spec:
+  selector:
+    app: item-service
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 102
+      protocol: TCP

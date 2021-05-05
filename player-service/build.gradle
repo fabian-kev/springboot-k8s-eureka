@@ -1,0 +1,78 @@
+plugins {
+    id 'org.springframework.boot' version '2.3.10.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'com.google.cloud.tools.jib' version '3.0.0'
+}
+
+group = 'com.fabiankevin.player'
+version = '1.0.0'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+ext {
+    set('dekorateVersion',  "0.15.0")
+    set('springCloudVersion', "Hoxton.SR11")
+}
+
+dependencies {
+//    implementation("io.dekorate:dekorate-spring-boot:${dekorateVersion}")
+//    implementation("io.dekorate:kubernetes-annotations:${dekorateVersion}")
+//    annotationProcessor("io.dekorate:kubernetes-annotations:${dekorateVersion}")
+//    annotationProcessor("io.dekorate:dekorate-spring-boot:${dekorateVersion}")
+
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes'
+    implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes-ribbon'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.h2database:h2'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks {
+	build {
+		dependsOn(tasks.jibDockerBuild)
+	}
+}
+//
+jib {
+	from {
+		image = 'openjdk:8-jdk-alpine'
+	}
+	to {
+		image = "fbiankevin/${rootProject.name}"
+		tags = ['latest', project.version]
+	}
+	container {
+		jvmFlags = ['-Xms360m', '-Xmx360m']
+		ports = ['100']
+		creationTime = 'USE_CURRENT_TIMESTAMP'
+	}
+	allowInsecureRegistries = false
+}
